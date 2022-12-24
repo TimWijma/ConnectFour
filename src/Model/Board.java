@@ -1,7 +1,7 @@
 package Model;
 
 public class Board {
-    private int[][] field;
+    public int[][] field;
     public int rows;
     public int cols;
 
@@ -45,63 +45,88 @@ public class Board {
     }
 
     public int hasWinner() {
-        int rowWinner = hasRow();
-        if (rowWinner != 0) {
-            return rowWinner;
+        int[][] rows = getRows();
+        for(int[] row: rows) {
+            for (int i = 1; i < 3; i++) {
+                if (row[i] == 4) {
+                    return i;
+                }
+            }
         }
-        int columnWinner = hasColumn();
-        if (columnWinner != 0) {
-            return columnWinner;
+
+        int[][] columns = getColumns();
+        for(int[] col: columns) {
+            for (int i = 1; i < 3; i++) {
+                if (col[i] == 4) {
+                    return i;
+                }
+            }
         }
-        int diagonalWinner = hasDiagonal();
-        if (diagonalWinner != 0) {
-            return diagonalWinner;
+
+        int[][] diagonals = getDiagonals();
+        for(int[] diagonal: diagonals) {
+            for (int i = 1; i < 3; i++) {
+                if (diagonal[i] == 4) {
+                    return i;
+                }
+            }
         }
         return 0;
     }
 
-    private int hasRow() {
+    public int[][] getRows() {
+        int[][] result = new int[(cols - 3) * rows][3]; // Total amount of possible rows without index out of bounds
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols - 3; j++) {
-                if (field[i][j] != 0 && field[i][j] == field[i][j+1] && field[i][j+1] == field[i][j+2] && field[i][j+2] == field[i][j+3]) {
-                    return field[i][j];
+                for (int count = 0; count <= 3; count++) {
+                    result[i * (rows - 2) + j][field[i][j + count]]++;
                 }
+                // i * (rows - 2) + j = length of result
+                // field[i][j + count] increases the corresponding value, 0 = empty, 1 = player1, 2 = player2
             }
         }
-        return 0;
+        return result;
     }
 
-    private int hasColumn() {
+    public int[][] getColumns() {
+        int[][] result = new int[(rows - 3) * cols][3]; // Total amount of possible columns without index out of bounds
         for (int i = 0; i < rows - 3; i++) {
             for (int j = 0; j < cols; j++) {
-                if (field[i][j] != 0 && field[i][j] == field[i + 1][j] && field[i + 1][j] == field[i + 2][j] && field[i + 2][j] == field[i + 3][j]) {
-                    return field[i][j];
+                for (int count = 0; count <= 3; count++) {
+                    result[i * (rows + 1) + j][field[i + count][j]]++;
                 }
+                // i * (rows + 1) + j = length of result
+                // field[i + count][j] increases the corresponding value, 0 = empty, 1 = player1, 2 = player2
             }
         }
-        return 0;
+        return result;
     }
 
-    private int hasDiagonal() {
-        // Top left to right bottom
+    public int[][] getDiagonals() {
+        int[][] result = new int[(rows - 3) * (cols - 3) * 2][3]; // Total amount of possible columns without index out of bounds
         for (int i = 0; i < rows - 3; i++) {
             for (int j = 0; j < cols - 3; j++) {
-                if (field[i][j] != 0 && field[i][j] == field[i+1][j+1] && field[i+1][j+1] == field[i+2][j+2] && field[i+2][j+2] == field[i+3][j+3]) {
-                    return field[i][j];
+                for (int count = 0; count <= 3; count++) {
+                    result[i * (rows - 2) + j][field[i + count][j + count]]++;
                 }
+                // i * (rows + 1) + j = length of result
+                // field[i + count][j +count] increases the corresponding value, 0 = empty, 1 = player1, 2 = player2
             }
         }
 
-        // Top bottom to right top
-        for (int i = rows - 1; i >= 3; i--) {
+        for (int i = rows - 1;i >= 3; i--) {
             for (int j = 0; j < cols - 3; j++) {
-//                System.out.println(i + " " + j + "|" + (i-1) + " " + (j+1) + "|"+ (i-2) + " " + (j+2) + "|"+ (i-3) + " " + (j+3) + "|");
-                if (field[i][j] != 0 && field[i][j] == field[i-1][j+1] && field[i-1][j+1] == field[i-2][j+2] && field[i-2][j+2] == field[i-3][j+3]) {
-                    return field[i][j];
+                int x = i == 3 ? 17 : 12;
+                for (int count = 0; count <= 3; count++) {
+                    result[j + (i % 5) + x][field[i - count][j + count]]++;
                 }
+                // x = 12 to resume last loop, 12 + 5 if i == 3 because of the formula
+                // i * (rows + 1) + j = length of result
+                // field[i + count][j +count] increases the corresponding value, 0 = empty, 1 = player1, 2 = player2
             }
         }
-        return 0;
+
+        return result;
     }
 
     public String toString() {
@@ -122,5 +147,21 @@ public class Board {
             result.append(line);
         }
         return result.toString();
+    }
+
+    public void print() {
+        for (int i = 0; i < rows; i++) {
+            StringBuilder sb = new StringBuilder();
+            for(int j = 0; j < cols; j++) {
+                if (field[i][j] == 0) {
+                    sb.append("\u001b[37m 0 \u001B[0m");
+                } else if (field[i][j] == 1) {
+                    sb.append("\u001B[31m 1 \u001B[0m");
+                } else {
+                    sb.append("\u001B[33m 2 \u001B[0m");
+                }
+            }
+            System.out.println(sb);
+        }
     }
 }

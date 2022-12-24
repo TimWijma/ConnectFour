@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
-    private Board board;
+    public Board board;
     public Player firstPlayer;
     public Player secondPlayer;
     public Player currentPlayer;
@@ -16,20 +16,25 @@ public class Game {
         this.currentPlayer = firstPlayer;
     }
 
-    public boolean doMove(int col, Player player) {
+    public void doMove(int col, Player player) {
         if (isValidMove(col)) {
             board.setField(col, player.getMark());
             currentPlayer = currentPlayer == firstPlayer ? secondPlayer : firstPlayer;
-            return true;
         } else {
             System.out.println("Not a valid move");
-            return false;
         }
     }
 
-    public void undoMove(int col) {
+    public void doFakeMove(int col, Player player) {
+        if (isValidMove(col)) {
+            board.setField(col, player.getMark());
+        } else {
+            System.out.println("Not a valid move");
+        }
+    }
+
+    public void undoFakeMove(int col) {
         board.removeField(col);
-        currentPlayer = currentPlayer == firstPlayer ? secondPlayer : firstPlayer;
     }
 
     public boolean isValidMove(int col) {
